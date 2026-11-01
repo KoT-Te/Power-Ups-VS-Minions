@@ -1,0 +1,743 @@
+/*
+ * Powerups Vs Minions - Stylesheet
+ * Super Mario meets Plants vs. Zombies arcade aesthetic
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;600;700;800&display=swap');
+
+:root {
+    --mario-red: #e52521;
+    --mario-dark-red: #99120f;
+    --mario-blue: #0026a3;
+    --mario-yellow: #fcd116;
+    --mario-green: #00a800;
+    --pvz-brown: #5d4037;
+    --pvz-dark-brown: #3e2723;
+    --pvz-gold: #ffb703;
+    --border-color: #2b1d14;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background: radial-gradient(circle at center, #2b3a4a 0%, #151d26 100%);
+    font-family: 'Rubik', sans-serif;
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 12px;
+    overflow-x: hidden;
+}
+
+/* Header & Title */
+header {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.game-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 24px;
+    color: #ffde17;
+    text-shadow: 
+        3px 3px 0 #e52521,
+        -2px -2px 0 #b81400,
+        2px -2px 0 #b81400,
+        -2px 2px 0 #b81400,
+        4px 4px 6px rgba(0, 0, 0, 0.7);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #ade8f4;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    font-weight: 600;
+}
+
+/* Main Container */
+.game-wrapper {
+    position: relative;
+    background: #2a201a;
+    border: 5px solid #5a3825;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Fullscreen Support */
+.game-wrapper:fullscreen,
+.game-wrapper:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #2b3a4a 0%, #101720 100%);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.game-inner-container {
+    position: relative;
+    width: 960px;
+    height: 656px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform-origin: center center;
+    transition: transform 0.15s ease-out;
+}
+
+/* Top Control Bar / HUD */
+.top-hud {
+    width: 960px;
+    height: 76px;
+    background: linear-gradient(180deg, #6d4c41 0%, #4e342e 100%);
+    border-bottom: 4px solid #3e2723;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px 6px;
+    gap: 4px;
+    z-index: 10;
+    flex-wrap: nowrap;
+}
+
+/* Coin Bank */
+.coin-bank {
+    display: flex;
+    align-items: center;
+    background: #3e2723;
+    border: 3px solid #ffb703;
+    border-radius: 8px;
+    padding: 3px 6px;
+    min-width: 90px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.coin-icon {
+    width: 24px;
+    height: 24px;
+    background: radial-gradient(circle, #ffea00 30%, #ff9500 100%);
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    margin-right: 5px;
+    box-shadow: 0 0 6px #ffea00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #723b00;
+    font-size: 12px;
+}
+
+#coin-count {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    color: #ffd166;
+    text-shadow: 2px 2px 0 #000;
+}
+
+/* Seed Packets Tray */
+.seed-tray {
+    display: flex;
+    gap: 3px;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 3px 4px;
+    border-radius: 8px;
+    border: 2px solid #5d4037;
+}
+
+.seed-card {
+    position: relative;
+    width: 44px;
+    height: 64px;
+    background: linear-gradient(180deg, #fafafa 0%, #dedede 100%);
+    border: 2px solid #8d6e63;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1px;
+    transition: transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+    overflow: hidden;
+}
+
+.seed-card:hover:not(.disabled):not(.on-cooldown) {
+    transform: translateY(-3px);
+    border-color: #ffde17;
+    box-shadow: 0 4px 10px rgba(255, 222, 23, 0.5);
+}
+
+.seed-card.selected {
+    border-color: #00ff88;
+    box-shadow: 0 0 10px #00ff88;
+    transform: translateY(-4px);
+}
+
+.seed-card.disabled {
+    opacity: 0.6;
+    filter: grayscale(0.5);
+    cursor: not-allowed;
+}
+
+.seed-card.on-cooldown {
+    cursor: not-allowed;
+}
+
+.cooldown-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: rgba(0, 0, 0, 0.65);
+    pointer-events: none;
+    transition: height 0.1s linear;
+}
+
+.card-icon {
+    width: 32px;
+    height: 32px;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-cost {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: #111;
+    font-weight: bold;
+    background: #ffd166;
+    border-radius: 2px;
+    padding: 1px 2px;
+    border: 1px solid #723b00;
+}
+
+.key-badge {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    font-size: 7px;
+    font-weight: bold;
+    color: #333;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+/* Tools (Shovel, Speed, Buttons) */
+.hud-tools {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-wrap: nowrap;
+}
+
+.hud-btn {
+    background: linear-gradient(180deg, #4dabf7 0%, #1971c2 100%);
+    border: 2px solid #0c4a85;
+    border-radius: 5px;
+    color: #ffffff;
+    font-family: 'Rubik', sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 4px 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+}
+
+.hud-btn:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+.hud-btn.active, .hud-btn.selected {
+    background: linear-gradient(180deg, #ff922b 0%, #d9480f 100%);
+    border-color: #ffd43b;
+    box-shadow: 0 0 8px #ff922b;
+}
+
+.hud-btn.muted {
+    background: linear-gradient(180deg, #868e96 0%, #495057 100%);
+    border-color: #343a40;
+    opacity: 0.7;
+}
+
+.shovel-btn {
+    width: 36px;
+    height: 46px;
+    background: linear-gradient(180deg, #8d6e63 0%, #4e342e 100%);
+    border: 2px solid #ffb703;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    padding: 2px;
+}
+
+.shovel-btn span {
+    font-size: 6.5px;
+    font-weight: bold;
+    margin-top: 1px;
+}
+
+/* Boss Health Bar HUD */
+.boss-hud {
+    position: absolute;
+    top: 84px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    height: 34px;
+    background: rgba(20, 10, 10, 0.85);
+    border: 3px solid #ff3b30;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 59, 48, 0.6);
+    display: none;
+    align-items: center;
+    padding: 3px;
+    z-index: 15;
+}
+
+.boss-icon {
+    font-size: 20px;
+    margin-right: 8px;
+    margin-left: 4px;
+}
+
+.boss-hp-bar {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    background: #331111;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #771111;
+}
+
+.boss-hp-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff3b30 0%, #ff9500 50%, #ffe600 100%);
+    transition: width 0.15s ease-out;
+}
+
+.boss-hp-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 5px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* Wave Progress Bar */
+.wave-hud {
+    width: 960px;
+    height: 20px;
+    background: #2b1d14;
+    border-top: 2px solid #4a3223;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #dcdde1;
+}
+
+.wave-progress-container {
+    flex: 1;
+    height: 8px;
+    background: #111;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #555;
+}
+
+.wave-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #2ecc71 0%, #f1c40f 100%);
+    transition: width 0.3s;
+}
+
+/* Game Canvas */
+#gameCanvas {
+    display: block;
+    cursor: default;
+    background: #000;
+}
+
+/* Modals (Almanac, Victory, Game Over, Level Select) */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(4px);
+}
+
+.modal-card {
+    background: linear-gradient(180deg, #4e342e 0%, #2b1d14 100%);
+    border: 4px solid #ffb703;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+    padding: 24px;
+    max-width: 680px;
+    width: 90%;
+    text-align: center;
+    color: #ffffff;
+    max-height: 88vh;
+    overflow-y: auto;
+}
+
+.modal-card h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 18px;
+    color: #ffde17;
+    margin-bottom: 12px;
+    text-shadow: 2px 2px 0 #99120f;
+}
+
+.modal-card p {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #e0e0e0;
+    margin-bottom: 16px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+.btn-primary {
+    background: linear-gradient(180deg, #e52521 0%, #b81400 100%);
+    border: 2px solid #ffde17;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 11px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(229, 37, 33, 0.5);
+    transition: transform 0.15s, filter 0.15s;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    filter: brightness(1.15);
+}
+
+.btn-secondary {
+    background: linear-gradient(180deg, #3a3c40 0%, #202124 100%);
+    border: 2px solid #aaa;
+    color: #fff;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.btn-secondary:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+}
+
+/* Almanac Styling */
+.almanac-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.almanac-tab-btn {
+    background: #3e2723;
+    border: 2px solid #8d6e63;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.almanac-tab-btn.active {
+    background: #ffb703;
+    color: #2b1d14;
+    border-color: #fff;
+}
+
+.almanac-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    text-align: left;
+}
+
+.almanac-entry {
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid #5d4037;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.almanac-entry-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.almanac-entry-info h4 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: #ffd166;
+    margin-bottom: 4px;
+}
+
+.almanac-entry-info p {
+    font-size: 11px;
+    color: #ccc;
+    margin-bottom: 4px;
+}
+
+.almanac-stat {
+    font-size: 9px;
+    color: #ade8f4;
+    font-weight: 600;
+}
+
+/* Footer / Instructions Bar */
+.bottom-bar {
+    width: 960px;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #8b9bb4;
+}
+
+.shortcuts-help {
+    display: flex;
+    gap: 12px;
+}
+
+.shortcuts-help kbd {
+    background: #3a3c40;
+    color: #ffde17;
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid #555;
+    font-weight: bold;
+}
+
+
+/* =====================================================================
+   ADVENTURE MODE — World Map
+   ===================================================================== */
+
+.world-map-card {
+    max-width: 720px !important;
+    width: 94vw;
+}
+
+.world-map-subtitle {
+    color: #b0c4de;
+    font-size: 12px;
+    margin: -8px 0 12px;
+    text-align: center;
+}
+
+.world-map-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+/* World node button base */
+.world-node {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 10px 6px 8px;
+    border-radius: 10px;
+    border: 2px solid #555;
+    background: #1e1e2e;
+    color: #aaa;
+    cursor: not-allowed;
+    font-family: inherit;
+    transition: transform 0.12s, box-shadow 0.12s;
+    min-height: 84px;
+    text-align: center;
+}
+
+.world-node .node-icon {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.world-node .node-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.world-node .node-name {
+    font-size: 9px;
+    color: #999;
+    line-height: 1.2;
+}
+
+.world-node .node-check {
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    font-size: 11px;
+    color: #22c55e;
+    font-weight: 900;
+}
+
+/* Locked */
+.world-node.node-locked {
+    opacity: 0.45;
+    filter: grayscale(0.8);
+}
+
+/* Unlocked but not yet completed */
+.world-node.node-unlocked {
+    background: #1a2e1a;
+    border-color: #52b788;
+    color: #d0ffd0;
+    cursor: pointer;
+}
+
+.world-node.node-unlocked .node-label { color: #86efac; }
+.world-node.node-unlocked .node-name  { color: #a7f3d0; }
+
+.world-node.node-unlocked:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px #52b78880;
+}
+
+/* Completed */
+.world-node.node-complete {
+    background: #0e2a1f;
+    border-color: #22c55e;
+    color: #bbf7d0;
+    cursor: pointer;
+}
+
+.world-node.node-complete .node-label { color: #4ade80; }
+.world-node.node-complete .node-name  { color: #86efac; }
+
+.world-node.node-complete:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px #22c55e80;
+}
+
+/* Currently playing highlight */
+.world-node.node-current {
+    border-color: #fde047 !important;
+    box-shadow: 0 0 12px #fde04780;
+}
+
+/* Pool levels */
+.world-node.node-pool {
+    border-style: dashed;
+}
+
+.world-node.node-pool.node-unlocked,
+.world-node.node-pool.node-complete {
+    border-color: #48cae4;
+    background: #0d2233;
+}
+
+.world-node.node-pool.node-unlocked .node-label { color: #7dd3fc; }
+.world-node.node-pool.node-unlocked .node-name  { color: #bae6fd; }
+.world-node.node-pool.node-complete .node-label { color: #38bdf8; }
+.world-node.node-pool.node-complete .node-name  { color: #7dd3fc; }
+
+.world-node.node-pool.node-unlocked:hover,
+.world-node.node-pool.node-complete:hover {
+    box-shadow: 0 4px 16px #48cae480;
+}
+
+/* Boss level */
+.world-node.node-boss.node-unlocked,
+.world-node.node-boss.node-complete {
+    background: #2d0a0a;
+    border-color: #ef4444;
+}
+
+.world-node.node-boss.node-unlocked .node-icon,
+.world-node.node-boss.node-complete .node-icon {
+    animation: pulse-boss 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-boss {
+    from { transform: scale(1);    filter: drop-shadow(0 0 4px #ff0000aa); }
+    to   { transform: scale(1.15); filter: drop-shadow(0 0 10px #ff6600dd); }
+}
+
+.world-node.node-boss.node-unlocked:hover,
+.world-node.node-boss.node-complete:hover {
+    box-shadow: 0 4px 20px #ef444480;
+}

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Powerups Vs Minions - Super Mario Tower Defense</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1 class="game-title">POWERUPS VS MINIONS</h1>
+        <div class="subtitle">Defend the Mushroom Kingdom against Bowser & His Minion Horde!</div>
+    </header>
+
+    <div class="game-wrapper">
+        <div class="game-inner-container" id="game-inner-container">
+            <!-- Top HUD / Control Bar -->
+            <div class="top-hud">
+            <!-- Coin Bank -->
+            <div class="coin-bank" title="Coins (Collect to plant power-ups)">
+                <div class="coin-icon">★</div>
+                <span id="coin-count">150</span>
+            </div>
+
+            <!-- Seed Cards Tray (Plants -> Power-ups) -->
+            <div class="seed-tray">
+                <!-- 1. Fire Flower (Peashooter) -->
+                <div class="seed-card" data-type="fire_flower" title="Fire Flower (Cost: 100) - Shoots fireballs at minions">
+                    <span class="key-badge">1</span>
+                    <canvas class="card-icon" id="card-fire_flower" width="40" height="40"></canvas>
+                    <span class="card-cost">100</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 2. Superstar (Sunflower) -->
+                <div class="seed-card" data-type="superstar" title="Superstar (Cost: 50) - Generates coins over time">
+                    <span class="key-badge">2</span>
+                    <canvas class="card-icon" id="card-superstar" width="40" height="40"></canvas>
+                    <span class="card-cost">50</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 3. Super Mushroom (Wall-nut) -->
+                <div class="seed-card" data-type="super_mushroom" title="Super Mushroom (Cost: 50) - Tough wall defense to block minions">
+                    <span class="key-badge">3</span>
+                    <canvas class="card-icon" id="card-super_mushroom" width="40" height="40"></canvas>
+                    <span class="card-cost">50</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 4. Bob-omb (Cherry Bomb) -->
+                <div class="seed-card" data-type="bob_omb" title="Bob-omb (Cost: 150) - Explodes after ~1s, decimating a 3x3 area">
+                    <span class="key-badge">4</span>
+                    <canvas class="card-icon" id="card-bob_omb" width="40" height="40"></canvas>
+                    <span class="card-cost">150</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 5. Bullet Blaster (Repeater) -->
+                <div class="seed-card" data-type="bullet_blaster" title="Bullet Blaster (Cost: 200) - Fires 2 Bullet Bills at a time">
+                    <span class="key-badge">5</span>
+                    <canvas class="card-icon" id="card-bullet_blaster" width="40" height="40"></canvas>
+                    <span class="card-cost">200</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 6. Ice Flower (Snow-pea) -->
+                <div class="seed-card" data-type="ice_flower" title="Ice Flower (Cost: 175) - Shoots iceballs that slow and damage minions">
+                    <span class="key-badge">6</span>
+                    <canvas class="card-icon" id="card-ice_flower" width="40" height="40"></canvas>
+                    <span class="card-cost">175</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 7. Yoshi's Egg (Potato Mine) -->
+                <div class="seed-card" data-type="yoshi_egg" title="Yoshi's Egg (Cost: 25) - Takes time to hatch, then eats a minion in one gulp!">
+                    <span class="key-badge">7</span>
+                    <canvas class="card-icon" id="card-yoshi_egg" width="40" height="40"></canvas>
+                    <span class="card-cost">25</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 8. Tanooki Leaf (Umbrella Leaf) -->
+                <div class="seed-card" data-type="tanooki_leaf" title="Tanooki Leaf (Cost: 100) - Protects a 3x3 area from Paragoombas!">
+                    <span class="key-badge">8</span>
+                    <canvas class="card-icon" id="card-tanooki_leaf" width="40" height="40"></canvas>
+                    <span class="card-cost">100</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 9. Lakitu's Cloud (Lily Pad) -->
+                <div class="seed-card" data-type="lakitu_cloud" title="Lakitu's Cloud (Cost: 25) - Plant on water to hold non-aquatic power-ups!">
+                    <span class="key-badge">9</span>
+                    <canvas class="card-icon" id="card-lakitu_cloud" width="40" height="40"></canvas>
+                    <span class="card-cost">25</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+
+                <!-- 10. Frog Suit (Tangled Kelp) -->
+                <div class="seed-card" data-type="frog_suit" title="Frog Suit (Cost: 25) - Planted on water. Takes down one minion with its tongue!">
+                    <span class="key-badge">0</span>
+                    <canvas class="card-icon" id="card-frog_suit" width="40" height="40"></canvas>
+                    <span class="card-cost">25</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+            </div>
+
+            <!-- Shovel Tool -->
+            <button class="hud-btn shovel-btn" id="shovel-btn" title="Super Pickaxe / Shovel (Key: S) - Remove power-ups">
+                ⛏️
+                <span>DIG (S)</span>
+            </button>
+
+            <!-- Tools & Controls -->
+            <div class="hud-tools">
+                <button class="hud-btn" id="speed-btn" title="Toggle game speed (1x / 2x)">1x Speed</button>
+                <button class="hud-btn" id="pause-btn" title="Pause game (Spacebar)">⏸ Pause</button>
+                <button class="hud-btn" id="fullscreen-btn" title="Toggle Fullscreen (Key: F)">⛶ Full</button>
+                <button class="hud-btn" id="sfx-btn" title="Toggle Sound FX">🔊 SFX: ON</button>
+                <button class="hud-btn" id="music-btn" title="Toggle Music">🎵 Music: ON</button>
+                <button class="hud-btn" id="almanac-btn" title="View Almanac / Guide">📖 Almanac</button>
+                <button class="hud-btn" id="level-btn" title="Select Level">🗺️ Worlds</button>
+            </div>
+        </div>
+
+        <!-- Boss Health Bar HUD (Appears when Bowser enters) -->
+        <div class="boss-hud" id="boss-hud">
+            <span class="boss-icon">👑</span>
+            <div class="boss-hp-bar">
+                <div class="boss-hp-fill" id="boss-hp-fill"></div>
+                <div class="boss-hp-text" id="boss-hp-text">BOWSER: 6500 / 6500</div>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas" width="960" height="560"></canvas>
+
+        <!-- Wave Progress Bar -->
+        <div class="wave-hud">
+            <span>LEVEL PROGRESS:</span>
+            <div class="wave-progress-container">
+                <div class="wave-progress-fill" id="wave-progress-fill"></div>
+            </div>
+            <span>🏁 CASTLE</span>
+        </div>
+
+        <!-- ALMANAC MODAL -->
+        <div class="modal-overlay" id="almanac-modal">
+            <div class="modal-card">
+                <h2>📖 POWER-UPS & MINIONS ALMANAC</h2>
+                <div class="almanac-tabs">
+                    <button class="almanac-tab-btn active" id="tab-powerups">Power-ups</button>
+                    <button class="almanac-tab-btn" id="tab-minions">Minions & Boss</button>
+                </div>
+
+                <!-- Powerups Content -->
+                <div class="almanac-list" id="almanac-powerups-list">
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-fire_flower" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Fire Flower</h4>
+                            <p>Acts like a Peashooter. Fires high-temperature fireballs at oncoming minions in its lane.</p>
+                            <div class="almanac-stat">Cost: 100 Coins | Damage: 20 | Recharge: Fast</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-superstar" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Superstar</h4>
+                            <p>Acts like a Sunflower. Periodically radiates gold and produces valuable coins to fund defenses.</p>
+                            <div class="almanac-stat">Cost: 50 Coins | Production: 25 Coins | Recharge: Fast</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-super_mushroom" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Super Mushroom</h4>
+                            <p>Acts like a Wall-nut. Possesses massive durability (4000 HP) to withstand waves of minion bites.</p>
+                            <div class="almanac-stat">Cost: 50 Coins | HP: 4000 | Recharge: Slow</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-bob_omb" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Bob-omb</h4>
+                            <p>Acts like a Cherry Bomb. Sizzles for ~1 second, then unleashes a colossal 3x3 blast (1800 DMG)!</p>
+                            <div class="almanac-stat">Cost: 150 Coins | Damage: 1800 (AoE) | Recharge: Very Slow</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-bullet_blaster" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Bullet Blaster</h4>
+                            <p>Acts like a Repeater. Dual-cannon iron tower that fires 2 Bullet Bills at a time in rapid succession.</p>
+                            <div class="almanac-stat">Cost: 200 Coins | Damage: 20 x 2 | Recharge: Fast</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-ice_flower" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Ice Flower</h4>
+                            <p>Acts like a Snow-pea. Fires sub-zero frost balls that slow enemy movement and bites by 50%!</p>
+                            <div class="almanac-stat">Cost: 175 Coins | Damage: 20 + 50% Slow | Recharge: Fast</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-yoshi_egg" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Yoshi's Egg</h4>
+                            <p>Acts like a Potato Mine. Takes ~14s to hatch. When a minion steps on it, Baby Yoshi swallows them in one gulp and dashes off!</p>
+                            <div class="almanac-stat">Cost: 25 Coins | Instant KO | Arm Time: 14s</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-tanooki_leaf" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Tanooki Leaf</h4>
+                            <p>Acts like an Umbrella Leaf. Protects power-ups in a 3x3 radius from Paragoomba snatch and drop attacks with a swift tail spin!</p>
+                            <div class="almanac-stat">Cost: 100 Coins | 3x3 Sky Protection | Recharge: Fast</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-lakitu_cloud" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Lakitu's Cloud</h4>
+                            <p>Acts like a Lily Pad. Floating fluffy cloud planted on water tiles, allowing non-aquatic power-ups to be planted on top!</p>
+                            <div class="almanac-stat">Cost: 25 Coins | Water Carrier | Recharge: Very Fast</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-frog_suit" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Frog Suit</h4>
+                            <p>Acts like Tangled Kelp. Aquatic suit planted directly in water. Snaps its elastic tongue to drag an oncoming minion under!</p>
+                            <div class="almanac-stat">Cost: 25 Coins | Water Only / Single-Use KO | Recharge: Slow</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Minions Content -->
+                <div class="almanac-list" id="almanac-minions-list" style="display: none;">
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-goomba" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Goomba</h4>
+                            <p>Common minion of Bowser's army. Slow waddling footsteps and standard bite damage.</p>
+                            <div class="almanac-stat">HP: 180 | Speed: Normal</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-flag_goomba" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Flag Goomba</h4>
+                            <p>Lazy minion that leads the charge on final waves of each level, waving Bowser's flag!</p>
+                            <div class="almanac-stat">HP: 180 | Wave Leader | Only on Final Waves</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-koopa" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Green Koopa Troopa</h4>
+                            <p>Quick footed foot-soldier. Moves faster than Goombas.</p>
+                            <div class="almanac-stat">HP: 220 | Speed: Fast</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-koopa_armored" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Red Armored Koopa</h4>
+                            <p>Hardened red shell acts like armor, absorbing twice as much damage.</p>
+                            <div class="almanac-stat">HP: 420 | Tough Armor</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-hammer_bro" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Hammer Bro</h4>
+                            <p>Elite soldier who periodically tosses heavy hammers at the front power-up in lane!</p>
+                            <div class="almanac-stat">HP: 520 | Ranged Hammer Attack</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-paratroopa" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Paratroopa (Winged)</h4>
+                            <p>Flies swiftly over the first power-up it encounters before dropping its wings.</p>
+                            <div class="almanac-stat">HP: 240 | Vaults over 1st obstacle</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-shy_guy" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Shy Guy (Heavy Armor)</h4>
+                            <p>Possesses massive health! Its hardened white mask absorbs 550 HP of damage before cracking and shattering, exposing a frantic unmasked runner!</p>
+                            <div class="almanac-stat">HP: 200 + 550 Mask Armor (750 Total!) | High Durability</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-boo" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Boo</h4>
+                            <p>Acts like a Newspaper Zombie. Approaches shyly with hands covering its face. Once damaged enough, it reveals its terrifying face and rushes at high speed!</p>
+                            <div class="almanac-stat">HP: 350 | Enraged Speed Boost | Ghostly Minion</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-boom_boom" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Boom Boom</h4>
+                            <p>Acts like a Dancer Zombie. Tough brawler who winds up and summons 4 Spinies around himself in cross formation (above, below, left, right)!</p>
+                            <div class="almanac-stat">HP: 600 | Summons 4 Spinies | Heavy Brawler</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-spiny" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Spiny</h4>
+                            <p>Spiked shell minion spawned by Boom Boom. Protected by razor-sharp spikes.</p>
+                            <div class="almanac-stat">HP: 200 | Spiked Shell | Summoned Minion</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-paragoomba" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>Paragoomba (Bungee Drop)</h4>
+                            <p>Acts like a Bungee Zombie. Drops from above to steal a power-up or deploy surprise minions! Countered by Tanooki Leaf.</p>
+                            <div class="almanac-stat">Aerial Threat | Plant Thief / Minion Drop | Deflected by Tanooki Leaf</div>
+                        </div>
+                    </div>
+                    <div class="almanac-entry">
+                        <canvas class="almanac-entry-icon" id="almanac-icon-bowser" width="50" height="50"></canvas>
+                        <div class="almanac-entry-info">
+                            <h4>👑 BOWSER (Final Boss)</h4>
+                            <p>The King of the Koopas! Unleashes devastating Fire Breath, summons minions, and executes shell spin charges!</p>
+                            <div class="almanac-stat">HP: 6500 | Multi-Phase Boss Attacks</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-primary" id="close-almanac-btn">BACK TO GAME</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- WORLD MAP MODAL -->
+        <div class="modal-overlay" id="level-modal">
+            <div class="modal-card world-map-card">
+                <h2>🗺️ WORLD 1 — MUSHROOM KINGDOM</h2>
+                <p class="world-map-subtitle">Choose a level to play. Complete each stage to unlock the next!</p>
+
+                <div class="world-map-grid" id="world-map-grid">
+                    <!-- Nodes injected by JS -->
+                </div>
+
+                <div class="modal-actions" style="margin-top:14px;">
+                    <button class="btn-secondary" id="close-level-btn">CLOSE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VICTORY MODAL -->
+        <div class="modal-overlay" id="victory-modal">
+            <div class="modal-card">
+                <h2 id="victory-title">🎉 STAGE CLEARED! 🎉</h2>
+                <p id="victory-desc">The Power-ups stand triumphant!</p>
+                <div class="modal-actions">
+                    <button class="btn-primary" id="victory-next-btn">NEXT LEVEL →</button>
+                    <button class="btn-secondary" id="victory-map-btn">🗺️ WORLD MAP</button>
+                    <button class="btn-secondary" id="victory-replay-btn">REPLAY</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME OVER MODAL -->
+        <div class="modal-overlay" id="gameover-modal">
+            <div class="modal-card">
+                <h2 style="color: #ff3b30;">💀 THE MINIONS ATE YOUR POWER-UPS! 💀</h2>
+                <p>Bowser's army breached your defenses and captured the castle!</p>
+                <div class="modal-actions">
+                    <button class="btn-primary" id="retry-btn">TRY AGAIN</button>
+                    <button class="btn-secondary" id="gameover-map-btn">🗺️ WORLD MAP</button>
+                </div>
+            </div>
+        </div>
+        </div> <!-- End of game-inner-container -->
+    </div>
+
+    <!-- Bottom Shortcuts & Tips -->
+    <div class="bottom-bar">
+        <div class="shortcuts-help">
+            <span><kbd>1</kbd>-<kbd>9</kbd>,<kbd>0</kbd> Select Power-up</span>
+            <span><kbd>S</kbd> Shovel (Dig)</span>
+            <span><kbd>SPACE</kbd> Pause</span>
+            <span><kbd>F</kbd> Fullscreen</span>
+            <span><kbd>Mouse Hover</kbd> Collect Coins</span>
+        </div>
+        <div>Made for Super Mario & PvZ Fans!</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="sprites.js"></script>
+    <script src="game.js"></script>
+
+    <script>
+        // =====================================================================
+        //  ADVENTURE MODE — World Map & UI Helpers
+        // =====================================================================
+
+        // ---------- Level metadata (mirrors Game.LEVEL_DATA) ----------
+        const LEVEL_META = [
+            null, // index 0 unused
+            { label: '1-1',  name: 'Toadstool Plains',       icon: '🍄', pool: false },
+            { label: '1-2',  name: 'Koopa Troop Trail',      icon: '🐢', pool: false },
+            { label: '1-3',  name: 'Paratroopa Skies',       icon: '🪽', pool: false },
+            { label: '1-4',  name: 'Hammer Bros Advance',    icon: '🔨', pool: false },
+            { label: '1-5',  name: 'Cheep Cheep Pool',       icon: '🌊', pool: true  },
+            { label: '1-6',  name: "Boo's Haunted Pool",     icon: '👻', pool: true  },
+            { label: '1-7',  name: 'Shy Guy Lagoon',         icon: '🎭', pool: true  },
+            { label: '1-8',  name: 'Paragoomba Raid',        icon: '🪽', pool: true  },
+            { label: '1-9',  name: "Boom Boom's Fortress",   icon: '💣', pool: true  },
+            { label: '1-10', name: "Bowser's Castle",        icon: '🔥', pool: false, boss: true },
+        ];
+
+        // ---------- Persistent progress (localStorage) ----------
+        const SAVE_KEY = 'pvm_adventure_progress_v1';
+
+        function loadProgress() {
+            try {
+                const raw = localStorage.getItem(SAVE_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            return { highestUnlocked: 1, completed: [] };
+        }
+
+        function saveProgress(prog) {
+            try { localStorage.setItem(SAVE_KEY, JSON.stringify(prog)); } catch(e) {}
+        }
+
+        let progress = loadProgress();
+
+        // Called by game.js on level complete
+        window.markLevelComplete = function(levelNum) {
+            if (!progress.completed.includes(levelNum)) {
+                progress.completed.push(levelNum);
+            }
+            if (levelNum + 1 <= 10 && levelNum + 1 > progress.highestUnlocked) {
+                progress.highestUnlocked = levelNum + 1;
+            }
+            saveProgress(progress);
+            rebuildWorldMap();
+        };
+
+        // Called by game.js so the map can highlight current level
+        window.setWorldMapLevel = function(levelNum) {
+            currentlyPlaying = levelNum;
+        };
+
+        let currentlyPlaying = 1;
+
+        // ---------- World Map Builder ----------
+        function rebuildWorldMap() {
+            const grid = document.getElementById('world-map-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            for (let i = 1; i <= 10; i++) {
+                const meta = LEVEL_META[i];
+                const isCompleted = progress.completed.includes(i);
+                const isUnlocked  = i <= progress.highestUnlocked;
+                const isCurrent   = i === currentlyPlaying;
+                const isBoss      = !!meta.boss;
+                const isPool      = !!meta.pool;
+
+                const node = document.createElement('button');
+                node.className = 'world-node'
+                    + (isCompleted  ? ' node-complete'  : '')
+                    + (isUnlocked && !isCompleted ? ' node-unlocked' : '')
+                    + (!isUnlocked  ? ' node-locked'   : '')
+                    + (isCurrent    ? ' node-current'  : '')
+                    + (isBoss       ? ' node-boss'     : '')
+                    + (isPool       ? ' node-pool'     : '');
+
+                node.innerHTML = `
+                    <span class="node-icon">${isUnlocked ? meta.icon : '🔒'}</span>
+                    <span class="node-label">World ${meta.label}</span>
+                    <span class="node-name">${meta.name}</span>
+                    ${isCompleted ? '<span class="node-check">✔</span>' : ''}
+                `;
+
+                if (isUnlocked) {
+                    node.addEventListener('click', () => selectLevel(i));
+                } else {
+                    node.title = 'Complete the previous level to unlock!';
+                }
+
+                grid.appendChild(node);
+            }
+        }
+
+        // ---------- Level Select ----------
+        function selectLevel(lvl) {
+            document.getElementById('level-modal').style.display = 'none';
+            if (window.game) {
+                window.game.startLevel(lvl);
+            }
+        }
+
+        // ---------- Seed Card & Almanac Icon drawing ----------
+        function drawCardIcons() {
+            const cards = ['fire_flower','superstar','super_mushroom','bob_omb','bullet_blaster',
+                           'ice_flower','yoshi_egg','tanooki_leaf','lakitu_cloud','frog_suit'];
+            cards.forEach(type => {
+                const cvs = document.getElementById('card-' + type);
+                if (cvs && window.Sprites) {
+                    const ctx = cvs.getContext('2d');
+                    ctx.clearRect(0, 0, 40, 40);
+                    const state = { time: 0, hpPercent: 1, isArmed: true, armProgress: 1 };
+                    if (type === 'fire_flower')    window.Sprites.drawFireFlower(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'superstar') window.Sprites.drawSuperstar(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'super_mushroom') window.Sprites.drawSuperMushroom(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'bob_omb')   window.Sprites.drawBobOmb(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'bullet_blaster') window.Sprites.drawBulletBlaster(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'ice_flower') window.Sprites.drawIceFlower(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'yoshi_egg') window.Sprites.drawYoshiEgg(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'tanooki_leaf') window.Sprites.drawTanookiLeaf(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'lakitu_cloud') window.Sprites.drawLakituCloud(ctx, 0, -4, 40, 40, state);
+                    else if (type === 'frog_suit') window.Sprites.drawFrogSuit(ctx, 0, -4, 40, 40, state);
+                }
+            });
+
+            // Almanac preview icons
+            cards.forEach(type => {
+                const cvs = document.getElementById('almanac-icon-' + type);
+                if (cvs && window.Sprites) {
+                    const ctx = cvs.getContext('2d');
+                    ctx.clearRect(0, 0, 50, 50);
+                    const state = { time: 0, hpPercent: 1, isArmed: true, armProgress: 1 };
+                    if (type === 'fire_flower')    window.Sprites.drawFireFlower(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'superstar') window.Sprites.drawSuperstar(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'super_mushroom') window.Sprites.drawSuperMushroom(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'bob_omb')   window.Sprites.drawBobOmb(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'bullet_blaster') window.Sprites.drawBulletBlaster(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'ice_flower') window.Sprites.drawIceFlower(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'yoshi_egg') window.Sprites.drawYoshiEgg(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'tanooki_leaf') window.Sprites.drawTanookiLeaf(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'lakitu_cloud') window.Sprites.drawLakituCloud(ctx, 0, 0, 50, 50, state);
+                    else if (type === 'frog_suit') window.Sprites.drawFrogSuit(ctx, 0, 0, 50, 50, state);
+                }
+            });
+
+            // Minion almanac icons
+            const minions = ['goomba','flag_goomba','koopa','koopa_armored','hammer_bro',
+                             'paratroopa','shy_guy','boo','boom_boom','spiny','paragoomba','bowser'];
+            minions.forEach(type => {
+                const cvs = document.getElementById('almanac-icon-' + type);
+                if (cvs && window.Sprites) {
+                    const ctx = cvs.getContext('2d');
+                    ctx.clearRect(0, 0, 50, 50);
+                    const state = { time: 0, maskHpRatio: 1, isAngry: false };
+                    if (type === 'goomba')         window.Sprites.drawGoomba(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'flag_goomba') window.Sprites.drawFlagGoomba(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'koopa')     window.Sprites.drawKoopa(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'koopa_armored') window.Sprites.drawKoopa(ctx, 0, -3, 50, 50, { time: 0, shellColor: '#d90429', shellBorder: '#720026' });
+                    else if (type === 'hammer_bro') window.Sprites.drawHammerBro(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'paratroopa') window.Sprites.drawParatroopa(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'shy_guy')   window.Sprites.drawShyGuy(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'boo')       window.Sprites.drawBoo(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'boom_boom') window.Sprites.drawBoomBoom(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'spiny')     window.Sprites.drawSpiny(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'paragoomba') window.Sprites.drawParagoomba(ctx, 0, -3, 50, 50, state);
+                    else if (type === 'bowser') {
+                        ctx.save(); ctx.scale(0.35, 0.35);
+                        window.Sprites.drawBowser(ctx, 20, 15, 100, 100, { time: 0, hpPercent: 1 });
+                        ctx.restore();
+                    }
+                }
+            });
+        }
+
+        // ---------- Main UI Init ----------
+        function initUIHelpers() {
+            drawCardIcons();
+            rebuildWorldMap();
+
+            // Almanac modal
+            const almanacBtn   = document.getElementById('almanac-btn');
+            const almanacModal = document.getElementById('almanac-modal');
+            const closeAlmanacBtn = document.getElementById('close-almanac-btn');
+            const tabPowerups  = document.getElementById('tab-powerups');
+            const tabMinions   = document.getElementById('tab-minions');
+            const listPowerups = document.getElementById('almanac-powerups-list');
+            const listMinions  = document.getElementById('almanac-minions-list');
+
+            if (almanacBtn && almanacModal) {
+                almanacBtn.addEventListener('click', () => { almanacModal.style.display = 'flex'; });
+                closeAlmanacBtn.addEventListener('click', () => { almanacModal.style.display = 'none'; });
+                tabPowerups.addEventListener('click', () => {
+                    tabPowerups.classList.add('active'); tabMinions.classList.remove('active');
+                    listPowerups.style.display = 'grid'; listMinions.style.display = 'none';
+                });
+                tabMinions.addEventListener('click', () => {
+                    tabMinions.classList.add('active'); tabPowerups.classList.remove('active');
+                    listMinions.style.display = 'grid'; listPowerups.style.display = 'none';
+                });
+            }
+
+            // World Map (level select) modal
+            const levelBtn   = document.getElementById('level-btn');
+            const levelModal = document.getElementById('level-modal');
+            const closeLevelBtn = document.getElementById('close-level-btn');
+            if (levelBtn && levelModal) {
+                levelBtn.addEventListener('click', () => {
+                    rebuildWorldMap();
+                    levelModal.style.display = 'flex';
+                });
+                closeLevelBtn.addEventListener('click', () => { levelModal.style.display = 'none'; });
+            }
+
+            // Retry button
+            const retryBtn = document.getElementById('retry-btn');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', () => {
+                    document.getElementById('gameover-modal').style.display = 'none';
+                    if (window.game) window.game.startLevel(window.game.level);
+                });
+            }
+
+            // Game over → World Map
+            const gameoverMapBtn = document.getElementById('gameover-map-btn');
+            if (gameoverMapBtn) {
+                gameoverMapBtn.addEventListener('click', () => {
+                    document.getElementById('gameover-modal').style.display = 'none';
+                    rebuildWorldMap();
+                    document.getElementById('level-modal').style.display = 'flex';
+                });
+            }
+
+            // Victory → Next Level
+            const victoryNextBtn = document.getElementById('victory-next-btn');
+            if (victoryNextBtn) {
+                victoryNextBtn.addEventListener('click', () => {
+                    document.getElementById('victory-modal').style.display = 'none';
+                    if (window.game) {
+                        const next = window.game.level < 10 ? window.game.level + 1 : 10;
+                        window.game.startLevel(next);
+                    }
+                });
+            }
+
+            // Victory → World Map
+            const victoryMapBtn = document.getElementById('victory-map-btn');
+            if (victoryMapBtn) {
+                victoryMapBtn.addEventListener('click', () => {
+                    document.getElementById('victory-modal').style.display = 'none';
+                    rebuildWorldMap();
+                    document.getElementById('level-modal').style.display = 'flex';
+                });
+            }
+
+            // Victory → Replay
+            const victoryReplayBtn = document.getElementById('victory-replay-btn');
+            if (victoryReplayBtn) {
+                victoryReplayBtn.addEventListener('click', () => {
+                    document.getElementById('victory-modal').style.display = 'none';
+                    if (window.game) window.game.startLevel(window.game.level);
+                });
+            }
+
+            // Fullscreen button
+            const fsBtn = document.getElementById('fullscreen-btn');
+            if (fsBtn) {
+                fsBtn.addEventListener('click', () => toggleFullscreen());
+            }
+        }
+
+        // ---------- Fullscreen ----------
+        function toggleFullscreen() {
+            const wrapper = document.querySelector('.game-wrapper');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (wrapper.requestFullscreen)            wrapper.requestFullscreen().catch(err => console.log(err));
+                else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+                else if (wrapper.msRequestFullscreen)     wrapper.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen)            document.exitFullscreen().catch(err => console.log(err));
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+
+        function updateFullscreenState() {
+            const btn  = document.getElementById('fullscreen-btn');
+            const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            if (btn) { btn.innerHTML = isFS ? '🗗 Window' : '⛶ Full'; btn.classList.toggle('active', isFS); }
+            adjustFullscreenScale();
+        }
+
+        function adjustFullscreenScale() {
+            const container = document.getElementById('game-inner-container');
+            if (!container) return;
+            const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            if (isFS) {
+                const scale = Math.min(window.innerWidth / 960, window.innerHeight / 656) * 0.96;
+                container.style.transform = `scale(${scale})`;
+            } else {
+                container.style.transform = 'none';
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenState);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenState);
+        window.addEventListener('resize', adjustFullscreenScale);
+
+        window.addEventListener('load', () => { initUIHelpers(); });
+    </script>
+</body>
+</html>
+
